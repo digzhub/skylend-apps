@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SkyLend V10 - Pro</title>
+<style>
+    :root {
+        --primary: #1565c0;
+        --primary-dark: #0d47a1;
+        --primary-light: #5e92f3;
+        --secondary: #eceff1;
+        --text-dark: #263238;
+        --danger: #d32f2f;
+        --danger-light: #ffcdd2;
+        --success: #2e7d32;
+        --warning: #ff8f00;
+        --white: #ffffff;
+        --shadow: 0 4px 12px rgba(0,0,0,0.08);
+        --radius: 12px;
+        --header-height: 60px;
+    }
+
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f8; color: var(--text-dark); font-size: 14px; overflow-x: hidden; }
+
+    /* --- Layout --- */
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: var(--white); padding: 0 1rem; height: var(--header-height);
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; width: 100%;
+    }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 1rem; padding-bottom: 80px; }
+    
+    /* --- Cards --- */
+    .card { background: var(--white); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.02); }
+    /* MODIFIED: Add flex-end to card-header for button */
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 2px solid #f5f5f5; }
+    .card-header h3 { margin: 0; font-size: 1.1rem; color: var(--primary-dark); }
+    
+    /* --- Grids --- */
+    .dash-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    @media (min-width: 600px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 900px) { .dash-grid { grid-template-columns: repeat(4, 1fr); } }
+    
+    /* NEW: Collector Collection Grid */
+    .col-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 900px) { .col-grid { grid-template-columns: 2fr 1fr; } }
+
+
+    .stat-card { background: white; padding: 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; border-top: 4px solid var(--primary); transition: transform 0.2s; }
+    .stat-card:active { transform: scale(0.98); }
+    .stat-card h5 { margin: 0; font-size: 0.85rem; color: #78909c; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 800; margin-top: 8px; color: var(--text-dark); }
+    
+    /* Team Grid */
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .collector-card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #eee; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+    .collector-card::before { content:''; position: absolute; left:0; top:0; height:100%; width:5px; background: var(--primary); }
+
+    /* --- Forms & Inputs --- */
+    .grid-form { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media(min-width:600px) { .grid-form.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .form-group { margin-bottom: 0.8rem; }
+    label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.85rem; color: #546e7a; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #cfd8dc; border-radius: 8px; font-size: 15px; background: #fff; transition: border 0.2s; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1); }
+
+    /* --- Buttons --- */
+    button { cursor: pointer; padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; color: white; margin-bottom: 0.5rem; transition: filter 0.2s; }
+    button:hover { filter: brightness(1.1); }
+    .btn-primary { background-color: var(--primary); }
+    .btn-danger { background-color: var(--danger); }
+    .btn-success { background-color: var(--success); }
+    .btn-secondary { background-color: #78909c; }
+    .btn-warning { background-color: var(--warning); color: #333; }
+    .btn-info { background-color: #0288d1; }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; margin: 0; }
+    
+    /* Filter Bar */
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end; flex-wrap: wrap; background: #fff; padding: 10px; border-radius: var(--radius); border: 1px solid #eee; }
+    .filter-bar div { flex: 1; min-width: 140px; }
+    .filter-bar input { padding: 8px; font-size: 0.9rem; }
+
+    /* --- Tables --- */
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; border-radius: var(--radius); border: 1px solid #eee; background: white; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eceff1; font-size: 0.9rem; }
+    th { background-color: #f8f9fa; white-space: nowrap; font-weight: 700; color: #546e7a; text-transform: uppercase; font-size: 0.75rem; } 
+    tr:last-child td { border-bottom: none; }
+    
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
+    .badge.paid { background: #e8f5e9; color: #2e7d32; }
+    .badge.late { background: #ffebee; color: #c62828; }
+    .badge.warning { background: #fff3e0; color: #ef6c00; }
+    
+    /* Row Highlighting */
+    tr.past-due { background-color: #fff5f5; }
+    tr.past-due td { color: #b71c1c; }
+    tr.past-due td strong { color: #b71c1c; }
+    
+    /* Button Group */
+    .btn-action-group { display: flex; gap: 5px; }
+
+    /* --- Utilities --- */
+    .hidden { display: none !important; }
+    
+    /* Sub Nav */
+    .sub-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; }
+    .sub-nav button { white-space: nowrap; flex: 0 0 auto; width: auto; border-radius: 20px; font-size: 0.85rem; padding: 8px 16px; margin: 0; border: 1px solid transparent; }
+    .sub-nav button.active { background-color: var(--primary); color: white; box-shadow: 0 2px 5px rgba(21, 101, 192, 0.3); }
+    .sub-nav button.inactive { background-color: #fff; color: #546e7a; border-color: #cfd8dc; }
+
+    /* SYNC STATUS BAR */
+    #sync-bar {
+        background: #263238; color: white; padding: 8px; text-align: center; font-size: 0.8rem; font-weight: 600;
+        display: none; position: sticky; top: var(--header-height); z-index: 999;
+    }
+    #sync-bar.unsynced { background: var(--warning); color: #333; display: block; }
+    #sync-bar.synced { background: var(--success); display: block; }
+
+    /* --- Loader --- */
+    #loader { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* --- PAYSLIP PRINT STYLES --- */
+    #payslip-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    @media (min-width: 768px) { #payslip-container { grid-template-columns: 1fr 1fr; } }
+    
+    .payslip-paper {
+        background: white; border: 1px solid #ccc; padding: 20px;
+        font-family: 'Courier New', Courier, monospace;
+        position: relative;
+    }
+    .payslip-paper h2 { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-top: 0; }
+    .pay-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .pay-row.bold { font-weight: bold; font-size: 1.1em; border-top: 1px solid #000; padding-top: 5px; margin-top: 10px; }
+
+    /* --- PRINT LIST STYLES --- */
+    .master-list-card {
+        background: white; border: 1px solid #333; padding: 15px; margin-bottom: 20px;
+    }
+    .master-list-header {
+        border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px;
+    }
+
+    @media print {
+        header, .sub-nav, .filter-bar, .dash-grid, .card, #sync-bar, button, h3, #admin-controls, .col-grid > div:last-child { display: none !important; }
+        .container { max-width: 100%; padding: 0; margin: 0; }
+        
+        /* Show Settings/Payslip if that tab is active */
+        #settings-tab.active-print { display: block !important; }
+        #payslip-view-area { display: block !important; visibility: visible; }
+        #payslip-container { display: block; }
+        
+        /* Show Master List if that tab is active */
+        #print-lists-tab.active-print { display: block !important; }
+        #master-list-container { display: block !important; }
+
+        .payslip-paper, .master-list-card { page-break-inside: avoid; border: 2px solid #000; margin-bottom: 20px; width: 100%; box-shadow: none; }
+        body { background: white; }
+        
+        /* Ensure tables in print list show */
+        table { min-width: 100%; border: 1px solid #000; }
+        th, td { border: 1px solid #000; padding: 5px; font-size: 10px; }
+        th { background: #eee !important; -webkit-print-color-adjust: exact; }
+        
+        /* Ensure the main collection table is visible for printing if a collector wants to print it */
+        #collect-tab.active-print .col-grid { display: block !important; }
+        #collect-tab.active-print .col-grid > div:first-child { display: block !important; }
+    }
+
+    /* ===============================
+   MOBILE COLLECTOR VIEW FIXES
+   =============================== */
+
+/* 1. Collector layout: force single column */
+@media (max-width: 768px) {
+    .col-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Move summary/actions above table */
+    .col-grid > div:last-child {
+        order: -1;
+    }
+}
+
+/* 2. Table readability on mobile */
+@media (max-width: 600px) {
+    table {
+        min-width: 100%;
+        font-size: 0.8rem;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    th {
+        font-size: 0.65rem;
+    }
+}
+
+/* 3. Action buttons: stack vertically */
+@media (max-width: 600px) {
+    .btn-action-group {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .btn-action-group button {
+        width: 100%;
+    }
+}
+
+/* 4. Collector cards spacing */
+@media (max-width: 600px) {
+    .collector-card {
+        padding: 12px;
+    }
+
+    .collector-card h4 {
+        font-size: 0.95rem;
+    }
+
+    .collector-card p {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+}
+
+/* 5. Filter bar stacking */
+@media (max-width: 600px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-bar div {
+        min-width: 100%;
+    }
+}
+
+/* 6. Sticky collector actions (optional but recommended) */
+@media (max-width: 600px) {
+    .collector-actions {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 10px;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        z-index: 100;
+    }
+}
+
+</style>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B65FF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <h3 style="color:var(--primary); margin-top:20px;">SkyLend V10 - Pro</h3>
+        <p id="loader-status" style="color:#666;">Initializing Enterprise Modules...</p>
+    </div>
+
+    <header>
+        <div style="font-size:1.1rem; font-weight:900; letter-spacing: -0.5px;">🦅 SkyLend V10 - Pro</div>
+        <div style="display:flex; align-items:center;">
+            <span id="user-display" style="font-weight:600; font-size: 0.9rem; margin-right: 15px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;"></span>
+            <button id="logout-btn" class="hidden btn-danger btn-sm" style="margin:0; padding: 6px 12px;" onclick="app.logout()">🔒</button>
+        </div>
+    </header>
+
+    <div id="sync-bar" onclick="app.syncWithCloud()">
+        ☁️ Everything Synced
+    </div>
+
+    <div class="container">
+
+        <div id="login-view" class="card hidden" style="max-width: 400px; margin: 6rem auto;">
+            <h2 style="text-align:center; color:var(--primary); margin-bottom: 1.5rem;">Secure Login</h2>
+            <div class="form-group">
+                <label>Select User</label>
+                <select id="login-select"></select>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-pass" placeholder="Enter security key">
+            </div>
+            <button class="btn-primary" style="width:100%; padding: 15px;" onclick="app.login()">Access Dashboard</button>
+            <p style="text-align:center; font-size:0.8rem; color:#999; margin-top:15px;">Pro Mode Enabled</p>
+        </div>
+
+        <div id="app-view" class="hidden">
+            <div style="margin-bottom:20px; display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; padding: 5px 0;">
+                <button id="nav-dash" class="btn-primary btn-sm" data-tab="dashboard" onclick="app.showTab('dashboard')">📊 Dashboard</button>
+                <button id="nav-collect" class="btn-secondary btn-sm" data-tab="collect" onclick="app.showTab('collect')">💰 Collection</button>
+                <button id="nav-pastdue" class="btn-secondary btn-sm hidden" data-tab="pastdue" onclick="app.showTab('pastdue')">⚠️ Past Due</button>
+                <button id="nav-loans" class="btn-secondary btn-sm hidden" data-tab="loans" onclick="app.showTab('loans')">📝 Loans</button>
+                <button id="nav-reports" class="btn-secondary btn-sm hidden" data-tab="reports" onclick="app.showTab('reports')">📈 Reports</button>
+                <button id="nav-ledger" class="btn-secondary btn-sm hidden" data-tab="ledger" onclick="app.showTab('ledger')">📒 Ledger</button>
+                <button id="nav-settings" class="btn-secondary btn-sm hidden" data-tab="settings" onclick="app.showTab('settings')">⚙️ Admin & HR</button>
+                <button id="nav-print-lists" class="btn-secondary btn-sm hidden" data-tab="print-lists" onclick="app.showTab('print-lists')">🖨️ Master List</button>
+            </div>
+
+            <div id="dashboard-tab" class="tab-content hidden">
+                <div class="filter-bar">
+                    <div style="flex:1;">
+                         <label>Target Month</label>
+                         <input type="month" id="dash-month-filter" onchange="app.renderDashboard()">
+                    </div>
+                </div>
+                
+                <div class="dash-grid">
+                    <div class="stat-card" style="border-color: var(--success);">
+                        <h5 id="stat-1-label">💵 Cash On Hand</h5><div class="value" id="stat-1-val">0.00</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--primary);">
+                        <h5 id="stat-2-label">📈 Active Portfolio</h5><div class="value" id="stat-2-val">0.00</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--warning);">
+                        <h5 id="stat-3-label">📥 Collection</h5><div class="value" id="stat-3-val">0.00</div>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--danger);">
+                        <h5 id="stat-4-label">⚠️ Past Due Loans</h5><div class="value" id="stat-4-val">0</div>
+                    </div>
+                </div>
+
+                <div id="admin-team-view" class="hidden">
+                    <h3 style="margin-bottom:15px; margin-top:25px;">🏆 Team Performance</h3>
+                    <div id="team-grid" class="team-grid">
+                    </div>
+                </div>
+
+                <div id="collector-client-view" class="hidden">
+                    <div class="dash-grid">
+                        <div class="card" style="grid-column: span 2; border-left: 5px solid var(--primary);">
+                            <div class="card-header"><h3>Active Clients</h3></div>
+                            <div class="table-responsive">
+                                <table id="dash-active-table"><thead><tr><th>Name</th><th>Bal</th><th>Due Date</th></tr></thead><tbody></tbody></table>
+                            </div>
+                        </div>
+                        <div class="card" style="grid-column: span 2; border-left: 5px solid var(--danger);">
+                            <div class="card-header"><h3 style="color:var(--danger)">⚠️ My Past Due</h3></div>
+                            <div class="table-responsive">
+                                <table id="dash-pastdue-table"><thead><tr><th>Name</th><th>Late</th><th>Bal</th></tr></thead><tbody></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="print-lists-tab" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Master List</h3>
+                        <button class="btn-secondary btn-sm" onclick="window.print()">🖨️ Print Now</button>
+                    </div>
+                    
+                    <div id="master-list-status-nav" class="sub-nav"></div>
+                    
+                    <div id="master-list-collector-nav" class="sub-nav"></div>
+
+                    <div id="master-list-container">
+                        </div>
+                </div>
+            </div>
+
+            <div id="pastdue-tab" class="tab-content hidden">
+                <div class="card" style="border-left: 5px solid var(--danger);">
+                    <div class="card-header">
+                        <h3 style="color:var(--danger)">⚠️ Past Due Accounts</h3>
+                        <button class="btn-info btn-sm" onclick="app.exportPastDue()">📥 Export</button>
+                    </div>
+                    <div id="pastdue-sub-nav" class="sub-nav"></div>
+                    <div class="table-responsive">
+                        <table id="pastdue-table">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Area</th>
+                                    <th>Due Date</th>
+                                    <th>Days Late</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loans-tab" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3>⚡ New Loan</h3></div>
+                    <div class="grid-form cols-2">
+                        <input id="n-name" placeholder="Client Name">
+                        <select id="n-area"></select>
+                        <input id="n-amt" type="number" placeholder="Principal">
+                        <select id="n-term" onchange="app.calcLoanPreview()">
+                            <option value="60">60 Days (20%)</option>
+                            <option value="40">40 Days (10%)</option>
+                            <option value="30">30 Days (5%)</option>
+                        </select>
+                        <input id="n-address" placeholder="Address">
+                        <input id="n-cell" type="tel" placeholder="Cell Number">
+                    </div>
+                    <div style="background: var(--secondary); padding: 15px; border-radius: 8px; margin: 10px 0; display: flex; justify-content: space-between; font-weight: bold;">
+                        <span>Total: <span id="prev-total" style="color:var(--primary)">0</span></span>
+                        <span>Daily: <span id="prev-daily" style="color:var(--primary)">0</span></span>
+                    </div>
+                    <button class="btn-primary" onclick="app.createLoan()">✅ Approve Loan</button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Active Portfolio</h3>
+                        <button class="btn-info btn-sm" onclick="app.exportActiveLoans()">📥 Export</button>
+                    </div>
+                    <div id="loan-sub-nav" class="sub-nav"></div>
+                    
+                    <div class="table-responsive">
+                        <table id="loan-table"><thead><tr><th>Client</th><th>Details</th><th>Bal</th><th>Action</th></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="collect-tab" class="tab-content hidden">
+                <div class="col-grid">
+                    <div class="card">
+                        <div class="card-header"><h3 id="col-header-area">Collection Sheet</h3></div>
+                        
+                        <div class="filter-bar">
+                            <div>
+                                <label>Date Filter</label>
+                                <input type="date" id="col-date-filter" onchange="app.renderCollectorTable()">
+                            </div>
+                        </div>
+                        
+                        <div id="collect-sub-nav" class="sub-nav hidden"></div>
+
+                        <div class="table-responsive">
+                            <table id="col-table">
+                                <thead><tr><th>Client</th><th>Daily</th><th>Bal</th><th style="width:100px;">Pay</th><th>Act</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="col-past-due-card" class="card hidden" style="border-left: 5px solid var(--danger);">
+                        <div class="card-header"><h3 style="color:var(--danger)">⚠️ My Area Past Due</h3></div>
+                        <div class="table-responsive">
+                            <table id="col-past-due-table">
+                                <thead><tr><th>Client</th><th>Late</th><th>Bal</th><th>Pay</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports-tab" class="tab-content hidden">
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header"><h3>Client Performance Report (All Loans)</h3></div>
+                    <div class="table-responsive">
+                        <table id="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Client Name</th>
+                                    <th>Total Loaned</th>
+                                    <th>Total Paid</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                    <th>Action</th> 
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot style="background:#f0f0f0; font-weight:bold;">
+                                <tr>
+                                    <td>TOTALS</td>
+                                    <td id="rep-tot-loaned">0</td>
+                                    <td id="rep-tot-paid">0</td>
+                                    <td id="rep-tot-bal">0</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><h3>Loan Payments Breakdown (Active)</h3></div>
+                    <div class="table-responsive">
+                        <table id="loan-breakdown-table">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Loan Total</th>
+                                    <th>Paid Off</th>
+                                    <th>Remaining Bal</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ledger-tab" class="tab-content hidden">
+                <div class="card">
+                    <div class="card-header"><h3>General Ledger</h3></div>
+                    <div class="filter-bar">
+                        <div><label>Start</label><input type="date" id="ledger-start" onchange="app.renderLedger()"></div>
+                        <div><label>End</label><input type="date" id="ledger-end" onchange="app.renderLedger()"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="ledger-table"><thead><tr><th>Date</th><th>Type</th><th>Desc</th><th>Amt</th><th>User</th></tr></thead><tbody></tbody></table>
+                    </div>
+                    
+                    <div class="grid-form cols-2" style="margin-top:20px;">
+                        <div>
+                             <h4>Log Expense</h4>
+                             <input type="text" id="exp-desc" placeholder="Desc" style="margin-bottom:5px;">
+                             <input type="number" id="exp-amount" placeholder="Amount" style="margin-bottom:5px;">
+                             <button class="btn-danger" onclick="app.addExpense()">Save Expense</button>
+                        </div>
+                        <div>
+                             <h4>Inject Capital</h4>
+                             <input type="number" id="cap-amount" placeholder="Amount" style="margin-bottom:5px;">
+                             <button class="btn-success" onclick="app.injectCapital()">Add Funds</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-tab" class="tab-content hidden">
+                
+                <div id="payslip-view-area">
+                    <div class="card">
+                        <div class="card-header"><h3>👔 HR & Payroll Center</h3></div>
+                        
+                        <div style="background:#f9fafb; padding:15px; border-radius:8px; margin-bottom:20px;">
+                            <h4 style="margin-top:0;">Daily Attendance</h4>
+                            <div class="grid-form cols-2">
+                                <input type="date" id="hr-att-date">
+                                <select id="hr-att-emp"></select>
+                                <select id="hr-att-status">
+                                    <option value="Present">Present</option>
+                                    <option value="Absent">Absent</option>
+                                    <option value="Rest Day">Rest Day</option>
+                                </select>
+                                <button class="btn-primary" onclick="app.markAttendance()">📝 Mark</button>
+                            </div>
+                        </div>
+
+                        <div style="border-top:1px solid #eee; padding-top:15px;">
+                            <h4 style="margin-top:0;">Generate Payroll</h4>
+                            <div class="grid-form cols-2">
+                                <div><label>From</label><input type="date" id="hr-pay-start"></div>
+                                <div><label>To</label><input type="date" id="hr-pay-end"></div>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn-success" onclick="app.generateBulkPayslip()">🖨️ Generate All Payslips</button>
+                                <button class="btn-secondary" onclick="window.print()" id="btn-print-payslip" class="hidden" style="display:none;">🖨️ Print Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="payslip-container" class="hidden" style="margin-bottom:30px;">
+                        </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h3>👥 Manage Collectors</h3></div>
+                    <div class="grid-form cols-2">
+                        <input type="text" id="col-name" placeholder="Name">
+                        <input type="text" id="col-area" placeholder="Area">
+                        <input type="text" id="col-pass" placeholder="Password">
+                        <input type="date" id="col-start">
+                        <input type="number" id="col-daily-rate" placeholder="Daily Rate">
+                        <input type="number" id="col-monthly-rate" placeholder="Monthly Rate">
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-top:20px; margin-bottom:20px;">
+                        <button id="btn-save-col" class="btn-success" style="flex:1;" onclick="app.saveCollector()">➕ Add/Update</button>
+                        <button id="btn-cancel-col" class="btn-secondary hidden" style="flex:1;" onclick="app.cancelEdit()">❌</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="collector-list-table"><thead><tr><th>Name</th><th>Area</th><th>Start</th><th>Rates</th><th>Act</th></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header"><h3>Data Tools</h3></div>
+                    <button class="btn-info" style="width:100%" onclick="app.exportCSV()">📥 Export Data to CSV</button>
+                    <button class="btn-danger" style="width:100%; margin-top:10px;" onclick="app.hardReset()">☢️ Factory Reset</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        class SkyLendCloud {
+            constructor() {
+                this.db = null;
+                this.currentUser = null;
+                this.editId = null;
+                this.STORAGE_KEY = 'SKYLEND_V10_PRO_DB'; // V10 Key
+                this.isDirty = false;
+                this.adminLoanFilter = 'All'; 
+                this.adminCollectFilter = 'All';
+                this.adminPastDueFilter = 'All';
+                this.masterListCollectorFilter = 'All'; // NEW: Master List Collector Filter
+                this.masterListStatusFilter = 'All'; // NEW: Master List Status Filter ('All' or 'Past Due')
+                this.initApp();
+            }
+
+            // --- CORE ---
+            initApp() {
+                const localData = localStorage.getItem(this.STORAGE_KEY);
+                if (localData) {
+                    this.db = JSON.parse(localData);
+                    this.populateLogin();
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('login-view').classList.remove('hidden');
+                } else {
+                    this.syncWithCloud();
+                }
+                if(localData) this.syncWithCloud(true);
+                this.setDefaults();
+            }
+
+            setDefaults() {
+                const today = this.getToday();
+                const firstDay = today.substring(0, 8) + '01';
+                document.getElementById('ledger-start').value = firstDay;
+                document.getElementById('ledger-end').value = today;
+                document.getElementById('dash-month-filter').value = today.substring(0, 7);
+                document.getElementById('col-date-filter').value = today; 
+                document.getElementById('hr-att-date').value = today;
+                document.getElementById('hr-pay-start').value = firstDay;
+                document.getElementById('hr-pay-end').value = today;
+            }
+
+            syncWithCloud(silent = false) {
+                if (!navigator.onLine) {
+                    if(!silent) this.updateSyncStatus("⚠️ Offline Mode", true);
+                    return;
+                }
+                if(!silent) document.getElementById('sync-bar').innerText = "🔄 Syncing...";
+
+                // Mocking for standalone demo
+                if(typeof google === 'undefined') {
+                    if(!this.db) {
+                         this.db = { collectors: [{id: 1, name: 'Admin', area: 'HQ', pass: 'admin123', startDate: '', dailyRate: 0, monthlyRate: 0}], loans: [], ledger: [], attendance: [] };
+                         this.persistLocal();
+                         document.getElementById('loader').classList.add('hidden');
+                         document.getElementById('login-view').classList.remove('hidden');
+                         this.populateLogin();
+                    }
+                    if(!this.db.collectors.find(c => c.id === 1)) { // Ensure Admin exists if data loaded from old key
+                         this.db.collectors.push({id: 1, name: 'Admin', area: 'HQ', pass: 'admin123', startDate: '', dailyRate: 0, monthlyRate: 0});
+                         this.persistLocal();
+                    }
+                    return;
+                }
+
+                google.script.run.withSuccessHandler((data) => {
+                    const cloudDB = JSON.parse(data);
+                    if (this.isDirty) {
+                        this.pushToCloud();
+                    } else {
+                        if (!cloudDB.collectors) cloudDB.collectors = [{id: 1, name: 'Admin', area: 'HQ', pass: 'admin123'}];
+                        if(!cloudDB.attendance) cloudDB.attendance = [];
+                        this.db = cloudDB;
+                        this.persistLocal();
+                        this.refreshUI();
+                        this.updateSyncStatus("☁️ Synced", false);
+                        if (!this.currentUser && document.getElementById('login-view').classList.contains('hidden')) {
+                            document.getElementById('loader').classList.add('hidden');
+                            document.getElementById('login-view').classList.remove('hidden');
+                            this.populateLogin();
+                        }
+                    }
+                }).loadDataFromDrive();
+            }
+
+            pushToCloud() {
+                if (!navigator.onLine || typeof google === 'undefined') {
+                    this.updateSyncStatus("⚠️ Saved Locally", true);
+                    return;
+                }
+                this.updateSyncStatus("☁️ Uploading...", false);
+                google.script.run.withSuccessHandler(() => {
+                    this.isDirty = false;
+                    this.updateSyncStatus("✅ Synced", false);
+                }).saveDataToDrive(JSON.stringify(this.db));
+            }
+
+            saveData() {
+                this.persistLocal();
+                this.isDirty = true;
+                this.refreshUI();
+                this.pushToCloud();
+            }
+
+            persistLocal() { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.db)); }
+            updateSyncStatus(msg, isWarning) {
+                const bar = document.getElementById('sync-bar');
+                bar.innerText = msg;
+                bar.className = isWarning ? 'unsynced' : 'synced';
+            }
+
+            refreshUI() { if(this.currentUser) this.renderAll(); this.populateLogin(); }
+            
+            // --- UTILS ---
+            formatMoney(amount) { return "₱" + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); }
+            getToday() { return new Date().toISOString().split('T')[0]; }
+            genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+            addLedger(type, desc, amt) {
+                this.db.ledger.unshift({ id: this.genId(), date: new Date().toLocaleString(), simpleDate: this.getToday(), type, desc, amt: amt, user: this.currentUser.name });
+            }
+
+            // --- AUTH ---
+            populateLogin() {
+                const sel = document.getElementById('login-select');
+                const savedId = sel.value;
+                sel.innerHTML = '<option value="" disabled selected>Choose Identity...</option>';
+                if(this.db && this.db.collectors) {
+                    this.db.collectors.forEach(c => {
+                        let opt = document.createElement('option');
+                        opt.value = c.id; opt.textContent = `${c.name} (${c.area})`;
+                        sel.appendChild(opt);
+                    });
+                }
+                if(savedId) sel.value = savedId;
+            }
+
+            login() {
+                const userId = document.getElementById('login-select').value;
+                const pass = document.getElementById('login-pass').value;
+                const user = this.db.collectors.find(c => c.id == userId);
+
+                if (!user || user.pass !== pass) return alert('Invalid User or Password');
+                
+                this.currentUser = { ...user, role: user.name === 'Admin' ? 'admin' : 'collector' };
+
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('user-display').innerText = `👤 ${this.currentUser.name}`;
+                
+                const adminTabs = ['nav-loans','nav-reports','nav-ledger','nav-settings','nav-pastdue', 'collect-sub-nav', 'admin-team-view', 'nav-print-lists'];
+                if (this.currentUser.role === 'admin') {
+                    adminTabs.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.classList.remove('hidden');
+                    });
+                    document.getElementById('collector-client-view').classList.add('hidden');
+                    document.getElementById('col-past-due-card').classList.add('hidden'); // Hide collector-specific past due list for admin
+                    this.renderTeamDashboard();
+                } else {
+                    adminTabs.forEach(id => {
+                         const el = document.getElementById(id);
+                         if(el) el.classList.add('hidden');
+                    });
+                    document.getElementById('collector-client-view').classList.remove('hidden');
+                    document.getElementById('col-past-due-card').classList.remove('hidden'); // Show collector-specific past due list for collector
+                }
+
+                this.updateAreaDropdown();
+                this.updateHREmployees();
+                this.renderAll();
+                this.showTab('dashboard');
+            }
+
+            logout() { location.reload(); }
+
+            showTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('[data-tab]').forEach(btn => {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                });
+                
+                // Remove print-active classes
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-print'));
+
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+                document.getElementById(`${tabId}-tab`).classList.add('active-print'); // Handle print visibility
+                
+                document.querySelector(`[data-tab="${tabId}"]`).classList.add('btn-primary');
+                document.querySelector(`[data-tab="${tabId}"]`).classList.remove('btn-secondary');
+                
+                // Hide payslip if moving away from settings
+                if(tabId !== 'settings') {
+                    document.getElementById('payslip-container').innerHTML = '';
+                    document.getElementById('payslip-container').classList.add('hidden');
+                    document.getElementById('btn-print-payslip').style.display = 'none';
+                }
+                
+                this.renderAll();
+            }
+
+            // --- RENDERING ---
+            renderAll() {
+                this.renderDashboard();
+                this.renderLoans();
+                this.renderCollectorTable();
+                this.renderLedger();
+                this.renderCollectors();
+                if(this.currentUser.role === 'admin') {
+                    this.renderReports();
+                    this.renderTeamDashboard();
+                    this.renderPastDue();
+                    this.renderLoanBreakdown();
+                    this.renderPrintableLists(); // New
+                } else {
+                    this.renderCollectorPastDueList(); // New
+                }
+            }
+
+            getOverdueDays(loan) {
+                if(loan.status !== 'Active') return 0;
+                const loanDate = new Date(loan.date);
+                const termDays = loan.term;
+                const dueDate = new Date(loanDate);
+                dueDate.setDate(dueDate.getDate() + termDays);
+                
+                const today = new Date();
+                // Ensure today is at the start of the day for fair comparison
+                today.setHours(0, 0, 0, 0);
+                dueDate.setHours(0, 0, 0, 0);
+
+                const diffTime = today - dueDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                return diffDays > 0 ? diffDays : 0;
+            }
+            
+            isOverdue(loan) { return this.getOverdueDays(loan) > 0; }
+
+            renderDashboard() {
+                const monthFilter = document.getElementById('dash-month-filter').value;
+                let overdueCount = 0;
+                this.db.loans.forEach(l => { if(l.status === 'Active' && this.isOverdue(l)) overdueCount++; });
+                document.getElementById('stat-4-val').innerText = overdueCount;
+
+                if (this.currentUser.role === 'admin') {
+                    let totalIn = 0, totalOut = 0, income = 0, monthCol = 0;
+                    this.db.ledger.forEach(t => {
+                        if (t.amt > 0) totalIn += t.amt;
+                        if (t.amt < 0) totalOut += Math.abs(t.amt);
+                        if (t.type === 'Collection') income += t.amt;
+                        if (t.type === 'Collection' && t.simpleDate.startsWith(monthFilter)) monthCol += t.amt;
+                    });
+                    const activePrincipal = this.db.loans.filter(l => l.status === 'Active').reduce((sum, l) => sum + l.principal, 0);
+                    
+                    document.getElementById('stat-1-label').innerText = "💵 Cash On Hand";
+                    document.getElementById('stat-1-val').innerText = this.formatMoney(totalIn - totalOut);
+                    document.getElementById('stat-2-label').innerText = "📈 Active Portfolio";
+                    document.getElementById('stat-2-val').innerText = this.formatMoney(activePrincipal);
+                    document.getElementById('stat-3-label').innerText = `💰 Total Income`; 
+                    document.getElementById('stat-3-val').innerText = this.formatMoney(income); 
+                    document.getElementById('stat-4-label').innerText = "⚠️ Past Due Loans";
+                } else {
+                    let todayCol = 0, monthCol = 0, totalCol = 0;
+                    this.db.ledger.forEach(t => {
+                        if (t.user === this.currentUser.name && t.type === 'Collection') {
+                            totalCol += t.amt;
+                            if (t.simpleDate === this.getToday()) todayCol += t.amt;
+                            if (t.simpleDate.startsWith(monthFilter)) monthCol += t.amt;
+                        }
+                    });
+                    
+                    document.getElementById('stat-1-label').innerText = "📅 Today's Collection";
+                    document.getElementById('stat-1-val').innerText = this.formatMoney(todayCol);
+                    document.getElementById('stat-2-label').innerText = `🗓️ Monthly (${monthFilter})`;
+                    document.getElementById('stat-2-val').innerText = this.formatMoney(monthCol);
+                    document.getElementById('stat-3-label').innerText = "🎒 Total Collected";
+                    document.getElementById('stat-3-val').innerText = this.formatMoney(totalCol);
+                    
+                    // Count my area's past due loans
+                    const areaOverdueCount = this.db.loans.filter(l => l.status === 'Active' && l.area === this.currentUser.area && this.isOverdue(l)).length;
+                    document.getElementById('stat-4-val').innerText = areaOverdueCount;
+                    document.getElementById('stat-4-label').innerText = "⚠️ Area Past Due";
+
+                    // Trigger the Collector Specific Lists
+                    this.renderCollectorClientLists();
+                }
+            }
+
+            // NEW: Render Active and Past Due lists for Collector Dashboard
+            renderCollectorClientLists() {
+                const area = this.currentUser.area;
+                const activeTbody = document.querySelector('#dash-active-table tbody');
+                const pastDueTbody = document.querySelector('#dash-pastdue-table tbody');
+                
+                activeTbody.innerHTML = '';
+                pastDueTbody.innerHTML = '';
+
+                // Get my loans
+                const myLoans = this.db.loans.filter(l => l.area === area && l.status === 'Active');
+                
+                if (myLoans.length === 0) {
+                    activeTbody.innerHTML = '<tr><td colspan="3">No active clients.</td></tr>';
+                    pastDueTbody.innerHTML = '<tr><td colspan="3">No past due clients.</td></tr>';
+                    return;
+                }
+
+                myLoans.forEach(l => {
+                    const isOD = this.isOverdue(l);
+                    const loanDate = new Date(l.date);
+                    loanDate.setDate(loanDate.getDate() + l.term);
+                    const dueDateStr = loanDate.toISOString().split('T')[0];
+
+                    // Active Table
+                    activeTbody.innerHTML += `
+                        <tr>
+                            <td>${l.name}</td>
+                            <td>${this.formatMoney(l.balance)}</td>
+                            <td>${dueDateStr}</td>
+                        </tr>
+                    `;
+
+                    // Past Due Table
+                    if (isOD) {
+                        pastDueTbody.innerHTML += `
+                            <tr class="past-due">
+                                <td>${l.name}</td>
+                                <td>${this.getOverdueDays(l)} Days</td>
+                                <td>${this.formatMoney(l.balance)}</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                if(pastDueTbody.innerHTML === '') pastDueTbody.innerHTML = '<tr><td colspan="3">Great job! No past due.</td></tr>';
+            }
+
+            renderTeamDashboard() {
+                const grid = document.getElementById('team-grid');
+                grid.innerHTML = '';
+                const monthFilter = document.getElementById('dash-month-filter').value;
+                const today = this.getToday();
+
+                this.db.collectors.filter(c => c.name !== 'Admin').forEach(c => {
+                    let todayAmt = 0; let monthAmt = 0; let totalAmt = 0;
+                    this.db.ledger.forEach(t => {
+                        if(t.user === c.name && t.type === 'Collection') {
+                            totalAmt += t.amt;
+                            if(t.simpleDate === today) todayAmt += t.amt;
+                            if(t.simpleDate.startsWith(monthFilter)) monthAmt += t.amt;
+                        }
+                    });
+                    grid.innerHTML += `
+                        <div class="collector-card">
+                            <h4 style="margin:0 0 10px 0; color:var(--primary);">${c.name} <small style="color:#777">(${c.area})</small></h4>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Today:</span> <strong style="color:var(--success)">${this.formatMoney(todayAmt)}</strong></div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Month:</span> <strong>${this.formatMoney(monthAmt)}</strong></div>
+                            <div style="display:flex; justify-content:space-between; border-top:1px solid #eee; padding-top:5px;"><span>Total:</span> <span style="color:#666">${this.formatMoney(totalAmt)}</span></div>
+                        </div>`;
+                });
+            }
+
+            // --- PAST DUE LOGIC (Admin View) ---
+            renderPastDue(filterOverride) {
+                if(filterOverride) this.adminPastDueFilter = filterOverride;
+                
+                // Build Nav
+                const nav = document.getElementById('pastdue-sub-nav');
+                nav.innerHTML = `<button class="${this.adminPastDueFilter === 'All' ? 'active' : 'inactive'}" onclick="app.renderPastDue('All')">All</button>`;
+                const areas = [...new Set(this.db.collectors.map(c => c.area).filter(a => a && a !== 'HQ'))];
+                areas.forEach(area => {
+                     nav.innerHTML += `<button class="${this.adminPastDueFilter === area ? 'active' : 'inactive'}" onclick="app.renderPastDue('${area}')">${area}</button>`;
+                });
+
+                const tbody = document.querySelector('#pastdue-table tbody');
+                tbody.innerHTML = '';
+                
+                let loans = this.db.loans.filter(l => l.status === 'Active' && this.isOverdue(l));
+                if(this.adminPastDueFilter !== 'All') loans = loans.filter(l => l.area === this.adminPastDueFilter);
+                
+                // Sort by Days Late (Desc)
+                loans.sort((a,b) => this.getOverdueDays(b) - this.getOverdueDays(a));
+
+                if(loans.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No past due loans! 🎉</td></tr>'; return; }
+
+                loans.forEach(l => {
+                    const days = this.getOverdueDays(l);
+                    const loanDate = new Date(l.date);
+                    loanDate.setDate(loanDate.getDate() + l.term);
+                    const dueDateStr = loanDate.toISOString().split('T')[0];
+
+                    tbody.innerHTML += `
+                        <tr class="past-due">
+                            <td><strong>${l.name}</strong></td>
+                            <td>${l.area}</td>
+                            <td>${dueDateStr}</td>
+                            <td><span class="badge late">${days} Days</span></td>
+                            <td><strong>${this.formatMoney(l.balance)}</strong></td>
+                        </tr>`;
+                });
+            }
+
+            renderLoans(filterOverride) {
+                if(filterOverride) this.adminLoanFilter = filterOverride;
+                
+                if (this.currentUser.role === 'admin') {
+                    const nav = document.getElementById('loan-sub-nav');
+                    nav.innerHTML = `<button class="${this.adminLoanFilter === 'All' ? 'active' : 'inactive'}" onclick="app.renderLoans('All')">All</button>`;
+                    const areas = [...new Set(this.db.collectors.map(c => c.area).filter(a => a && a !== 'HQ'))];
+                    areas.forEach(area => {
+                         nav.innerHTML += `<button class="${this.adminLoanFilter === area ? 'active' : 'inactive'}" onclick="app.renderLoans('${area}')">${area}</button>`;
+                    });
+                }
+
+                const tbody = document.querySelector('#loan-table tbody');
+                tbody.innerHTML = '';
+                
+                let loans = this.db.loans.filter(l => l.status === 'Active');
+                if(this.adminLoanFilter !== 'All') loans = loans.filter(l => l.area === this.adminLoanFilter);
+
+                if(loans.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No active loans found.</td></tr>'; return; }
+
+                loans.forEach(l => {
+                    const isOD = this.isOverdue(l);
+                    const rowClass = isOD ? 'past-due' : '';
+                    const alertIcon = isOD ? '⚠️ ' : '';
+                    tbody.innerHTML += `
+                        <tr class="${rowClass}">
+                            <td><strong>${alertIcon}${l.name}</strong></td>
+                            <td><small>${l.area}</small><br>${this.formatMoney(l.daily)}/day</td>
+                            <td>${this.formatMoney(l.balance)}</td>
+                            <td>
+                                <div class="btn-action-group">
+                                    <button class="btn-secondary btn-sm" onclick="alert('View Loan Details for ${l.name}')">View All</button>
+                                    <button class="btn-danger btn-sm" onclick="app.deleteLoan('${l.id}')">Del</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                });
+            }
+            
+            // NEW: Collector Past Due List (Right panel on Collection tab)
+            renderCollectorPastDueList() {
+                if (this.currentUser.role !== 'collector') return; // Only for collectors
+                
+                const area = this.currentUser.area;
+                const tbody = document.querySelector('#col-past-due-table tbody');
+                tbody.innerHTML = '';
+                
+                const filterDate = document.getElementById('col-date-filter').value;
+                const isToday = filterDate === this.getToday();
+                
+                let loans = this.db.loans.filter(l => l.status === 'Active' && l.area === area && this.isOverdue(l));
+                
+                // Sort by Days Late (Desc)
+                loans.sort((a,b) => this.getOverdueDays(b) - this.getOverdueDays(a));
+
+                if(loans.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No past due in your area! 🎉</td></tr>'; return; }
+
+                loans.forEach(l => {
+                    const days = this.getOverdueDays(l);
+                    const paidOnDate = this.db.ledger.some(t => t.desc.includes(l.name) && t.type === 'Collection' && t.simpleDate === filterDate);
+                    const paidStyle = paidOnDate ? 'opacity:0.5; background:#f0f0f0;' : '';
+
+                    tbody.innerHTML += `
+                        <tr class="past-due" style="${paidStyle}">
+                            <td><strong>${l.name}</strong><br><span class="badge late">${days} Days</span></td>
+                            <td>${this.formatMoney(l.daily)}</td>
+                            <td>${this.formatMoney(l.balance)}</td>
+                            <td>
+                                <div style="display:flex; flex-direction:column; gap:5px;">
+                                    <input type="number" id="pay-od-${l.id}" value="${l.daily}" style="width:70px; padding: 6px;" ${paidOnDate && isToday ? 'disabled' : ''}>
+                                    <button class="btn-success btn-sm" onclick="app.processPay('${l.id}')" ${paidOnDate && isToday ? 'disabled' : ''}>Pay</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                });
+            }
+
+
+            renderCollectorTable(filterOverride) {
+                if(filterOverride) this.adminCollectFilter = filterOverride;
+                if (this.currentUser.role === 'admin') {
+                    document.getElementById('collect-sub-nav').classList.remove('hidden');
+                    const nav = document.getElementById('collect-sub-nav');
+                    nav.innerHTML = `<button class="${this.adminCollectFilter === 'All' ? 'active' : 'inactive'}" onclick="app.renderCollectorTable('All')">All</button>`;
+                    const areas = [...new Set(this.db.collectors.map(c => c.area).filter(a => a && a !== 'HQ'))];
+                    areas.forEach(area => {
+                         nav.innerHTML += `<button class="${this.adminCollectFilter === area ? 'active' : 'inactive'}" onclick="app.renderCollectorTable('${area}')">${area}</button>`;
+                    });
+                } else {
+                    this.renderCollectorPastDueList(); // For collector, also render the Past Due list when table updates
+                }
+
+                const tbody = document.querySelector('#col-table tbody');
+                tbody.innerHTML = '';
+                
+                let targetArea = this.currentUser.area;
+                if(this.currentUser.role === 'admin') targetArea = this.adminCollectFilter === 'All' ? '' : this.adminCollectFilter;
+
+                document.getElementById('col-header-area').textContent = `Collection: ${targetArea || 'All Areas'}`;
+                
+                const myLoans = this.db.loans.filter(l => l.status === 'Active' && (targetArea === '' || l.area === targetArea));
+                if(myLoans.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No loans.</td></tr>'; return; }
+
+                const filterDate = document.getElementById('col-date-filter').value;
+                const isToday = filterDate === this.getToday();
+
+                myLoans.forEach(l => {
+                    const paidOnDate = this.db.ledger.some(t => t.desc.includes(l.name) && t.type === 'Collection' && t.simpleDate === filterDate);
+                    const paidStyle = paidOnDate ? 'opacity:0.5; background:#f0f0f0;' : '';
+                    
+                    const isOD = this.isOverdue(l);
+                    const nameColor = isOD ? 'color:var(--danger);' : '';
+                    const badge = isOD ? '<span class="badge late">OD</span> ' : '';
+
+                    tbody.innerHTML += `
+                        <tr style="${paidStyle}">
+                            <td>${badge}<strong style="${nameColor}">${l.name}</strong><br><small>${l.area}</small></td>
+                            <td style="font-weight:bold;">${this.formatMoney(l.daily)}</td>
+                            <td>${this.formatMoney(l.balance)}</td>
+                            <td><input type="number" id="pay-${l.id}" value="${l.daily}" style="width:70px;" ${paidOnDate && isToday ? 'disabled' : ''}></td>
+                            <td><button class="btn-success btn-sm" onclick="app.processPay('${l.id}')" ${paidOnDate && isToday ? 'disabled' : ''}>Pay</button></td>
+                        </tr>`;
+                });
+            }
+
+            renderLedger() {
+                const tbody = document.querySelector('#ledger-table tbody');
+                tbody.innerHTML = '';
+                const sDate = document.getElementById('ledger-start').value;
+                const eDate = document.getElementById('ledger-end').value;
+                const filtered = this.db.ledger.filter(t => t.simpleDate >= sDate && t.simpleDate <= eDate);
+                if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No records.</td></tr>'; return; }
+                filtered.slice(0, 100).forEach(t => { 
+                    const amtDisplay = t.amt > 0 ? `<span style="color:var(--success)">+${this.formatMoney(t.amt)}</span>` : `<span style="color:var(--danger)">-${this.formatMoney(Math.abs(t.amt))}</span>`;
+                    tbody.innerHTML += `<tr><td>${t.simpleDate}</td><td><span class="badge ${t.amt>0?'paid':'late'}">${t.type}</span></td><td>${t.desc}</td><td>${amtDisplay}</td><td>${t.user}</td></tr>`;
+                });
+            }
+
+            renderReports() {
+                const tbody = document.querySelector('#report-table tbody');
+                tbody.innerHTML = '';
+                const loans = this.db.loans.slice().sort((a,b) => a.name.localeCompare(b.name));
+                let gLoaned = 0, gPaid = 0, gBal = 0;
+                loans.forEach(l => {
+                    const totalPaid = l.total - l.balance;
+                    gLoaned += l.total; gPaid += totalPaid; gBal += l.balance;
+                    
+                    // RENEW BUTTON LOGIC
+                    let actionBtn = '';
+                    if(l.status === 'Paid') {
+                        actionBtn = `<button class="btn-success btn-sm" onclick="app.renewLoan('${l.id}')">🔄 Renew</button>`;
+                    }
+
+                    tbody.innerHTML += `<tr>
+                        <td><strong>${l.name}</strong><br><small style="color:#666">${l.area}</small></td>
+                        <td>${this.formatMoney(l.total)}</td>
+                        <td style="color:var(--success)">${this.formatMoney(totalPaid)}</td>
+                        <td style="color:var(--danger)">${this.formatMoney(l.balance)}</td>
+                        <td><span class="badge ${l.status==='Active'?'late':'paid'}">${l.status}</span></td>
+                        <td>${actionBtn}</td>
+                    </tr>`;
+                });
+                document.getElementById('rep-tot-loaned').textContent = this.formatMoney(gLoaned);
+                document.getElementById('rep-tot-paid').textContent = this.formatMoney(gPaid);
+                document.getElementById('rep-tot-bal').textContent = this.formatMoney(gBal);
+            }
+            
+            // NEW: RENEW LOAN FUNCTION
+            renewLoan(oldLoanId) {
+                const oldLoan = this.db.loans.find(l => l.id === oldLoanId);
+                if(!oldLoan) return;
+
+                // Fill New Loan Form
+                document.getElementById('n-name').value = oldLoan.name;
+                document.getElementById('n-area').value = oldLoan.area;
+                document.getElementById('n-amt').value = oldLoan.principal;
+                document.getElementById('n-address').value = oldLoan.address || '';
+                document.getElementById('n-cell').value = oldLoan.cellNumber || '';
+                
+                // Switch Tab
+                this.showTab('loans');
+                this.calcLoanPreview();
+                window.scrollTo(0,0);
+                alert(`Renewing ${oldLoan.name}. Verify details and click Approve.`);
+            }
+
+            renderLoanBreakdown() {
+                const tbody = document.querySelector('#loan-breakdown-table tbody');
+                tbody.innerHTML = '';
+                const activeLoans = this.db.loans.filter(l => l.status === 'Active');
+                
+                if (activeLoans.length === 0) {
+                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No active loans to show breakdown.</td></tr>';
+                     return;
+                }
+                
+                activeLoans.forEach(l => {
+                    const paidOff = l.total - l.balance;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${l.name}</strong><br><small style="color:#666">${l.area}</small></td>
+                            <td>${this.formatMoney(l.total)}</td>
+                            <td style="color:var(--success)">${this.formatMoney(paidOff)}</td>
+                            <td style="color:var(--danger)">${this.formatMoney(l.balance)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // NEW: Render Printable Master Lists by Collector and Status
+            renderPrintableLists() {
+                const container = document.getElementById('master-list-container');
+                const colNav = document.getElementById('master-list-collector-nav');
+                const statusNav = document.getElementById('master-list-status-nav');
+
+                // --- 1. Render Status Nav (All Clients / Past Due) ---
+                statusNav.innerHTML = `
+                    <button class="${this.masterListStatusFilter === 'All' ? 'active' : 'inactive'}" onclick="app.setMasterListStatusFilter('All')">All Clients</button>
+                    <button class="${this.masterListStatusFilter === 'Past Due' ? 'active' : 'inactive'}" style="background:var(--danger); color:white;" onclick="app.setMasterListStatusFilter('Past Due')">⚠️ Past Due Only</button>
+                `;
+
+                // --- 2. Render Collector Nav ---
+                colNav.innerHTML = `<button class="${this.masterListCollectorFilter === 'All' ? 'active' : 'inactive'}" onclick="app.setMasterListCollectorFilter('All')">All Collectors</button>`;
+                const collectors = this.db.collectors.filter(c => c.name !== 'Admin');
+                const areas = [...new Set(collectors.map(c => c.area).filter(a => a && a !== 'HQ'))];
+                areas.forEach(area => {
+                     colNav.innerHTML += `<button class="${this.masterListCollectorFilter === area ? 'active' : 'inactive'}" onclick="app.setMasterListCollectorFilter('${area}')">${area}</button>`;
+                });
+                
+                // --- 3. Filter Data ---
+                container.innerHTML = '';
+                
+                // Get loans that are active or paid but still have a balance (in case of logic error)
+                let loansToPrint = this.db.loans.filter(l => l.status === 'Active' || (l.status === 'Paid' && l.balance > 0)); 
+                
+                // Filter by Status
+                if(this.masterListStatusFilter === 'Past Due') {
+                    loansToPrint = loansToPrint.filter(l => this.isOverdue(l));
+                }
+
+                // Determine which collectors and loans to show based on collector filter
+                let targetCollectors = collectors;
+                if(this.masterListCollectorFilter !== 'All') {
+                    targetCollectors = collectors.filter(c => c.area === this.masterListCollectorFilter);
+                    loansToPrint = loansToPrint.filter(l => l.area === this.masterListCollectorFilter);
+                }
+
+                if(loansToPrint.length === 0) {
+                     container.innerHTML = '<p style="text-align:center; padding:20px;">No clients match the current filter selection.</p>';
+                     return;
+                }
+
+                // Group loans by area for printing (even if filtered by a single area)
+                const loansByArea = loansToPrint.reduce((acc, loan) => {
+                    const area = loan.area;
+                    if(!acc[area]) acc[area] = [];
+                    acc[area].push(loan);
+                    return acc;
+                }, {});
+
+                // Now iterate through the target collectors/areas and print
+                targetCollectors.forEach(c => {
+                    const cLoans = loansByArea[c.area] || [];
+
+                    if(cLoans.length === 0) return; // Skip if no loans match status filter for this collector
+
+                    // Sort: Past due first, then alphabetically
+                    cLoans.sort((a,b) => {
+                        const odA = this.isOverdue(a);
+                        const odB = this.isOverdue(b);
+                        if(odA && !odB) return -1;
+                        if(!odA && odB) return 1;
+                        return a.name.localeCompare(b.name);
+                    });
+                    
+                    // NEW: Calculate Total Balance for this collector's list
+                    const totalAreaBalance = cLoans.reduce((sum, l) => sum + l.balance, 0);
+
+                    let tableRows = '';
+                    cLoans.forEach(l => {
+                        const isOD = this.isOverdue(l);
+                        const statusText = isOD ? `PAST DUE (${this.getOverdueDays(l)}d)` : 'Active';
+                        const statusColor = isOD ? 'var(--danger)' : 'var(--success)';
+                        const rowStyle = isOD ? 'background:#fff5f5' : '';
+                        
+                        tableRows += `
+                            <tr style="${rowStyle}">
+                                <td>${l.name}</td>
+                                <td>${l.address || '-'}</td>
+                                <td>${l.cellNumber || '-'}</td>
+                                <td>${this.formatMoney(l.daily)}</td>
+                                <td>${this.formatMoney(l.balance)}</td>
+                                <td style="color:${statusColor}"><strong>${statusText}</strong></td>
+                            </tr>
+                        `;
+                    });
+
+                    const html = `
+                        <div class="master-list-card">
+                            <div class="master-list-header">
+                                <h2>Collector: ${c.name}</h2>
+                                <p>Area: ${c.area}</p>
+                                <p>Report Date: ${this.getToday()}</p>
+                            </div>
+                            <div class="table-responsive" style="margin-bottom: 0;">
+                                <table style="min-width: 100%; border: 1px solid #000;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:25%">Client Name</th>
+                                            <th style="width:25%">Address</th>
+                                            <th style="width:15%">Cell Number</th>
+                                            <th style="width:10%">Daily Pay</th>
+                                            <th style="width:10%">Total Balance</th>
+                                            <th style="width:15%">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tableRows}
+                                    </tbody>
+                                    <tfoot style="font-weight: bold; background: #eee;">
+                                        <tr>
+                                            <td colspan="4" style="text-align: right;">AREA TOTAL BALANCE:</td>
+                                            <td>${this.formatMoney(totalAreaBalance)}</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div style="margin-top:10px; font-size:0.8rem;">
+                                Total Clients: ${cLoans.length}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+                
+                if(container.innerHTML === '') container.innerHTML = '<p style="text-align:center; padding:20px;">No clients match the current filter selection.</p>';
+            }
+
+            // NEW: Master List Filter Functions
+            setMasterListCollectorFilter(area) {
+                this.masterListCollectorFilter = area;
+                this.renderPrintableLists();
+            }
+
+            setMasterListStatusFilter(status) {
+                this.masterListStatusFilter = status;
+                this.renderPrintableLists();
+            }
+
+            renderCollectors() {
+                const tbody = document.querySelector('#collector-list-table tbody');
+                tbody.innerHTML = '';
+                this.db.collectors.forEach(c => {
+                    const start = c.startDate || '-';
+                    const dRate = c.dailyRate ? this.formatMoney(c.dailyRate) : '0';
+                    const mRate = c.monthlyRate ? this.formatMoney(c.monthlyRate) : '0';
+                    tbody.innerHTML += `<tr><td><strong>${c.name}</strong></td><td>${c.area}</td><td>${start}</td><td><small>D: ${dRate}<br>M: ${mRate}</small></td><td><div class="btn-action-group"><button class="btn-primary btn-sm" onclick="app.editCollector(${c.id})">✎</button><button class="btn-danger btn-sm" onclick="app.delCollector(${c.id})">X</button></div></td></tr>`;
+                });
+            }
+
+            // --- PAYSLIP SYSTEM ---
+            generateBulkPayslip() {
+                const start = document.getElementById('hr-pay-start').value;
+                const end = document.getElementById('hr-pay-end').value;
+                const container = document.getElementById('payslip-container');
+                container.innerHTML = '';
+                
+                // Filter out Admin
+                const collectors = this.db.collectors.filter(c => c.name !== 'Admin');
+                
+                collectors.forEach(emp => {
+                    const daysPresent = this.db.attendance.filter(a => a.empId == emp.id && a.date >= start && a.date <= end && a.status === 'Present').length;
+                    const dailyPay = daysPresent * (emp.dailyRate || 0);
+                    const monthlyPay = (emp.monthlyRate || 0); 
+                    
+                    let collection = 0;
+                    this.db.ledger.forEach(l => {
+                        if(l.user === emp.name && l.type === 'Collection' && l.simpleDate >= start && l.simpleDate <= end) {
+                            collection += l.amt;
+                        }
+                    });
+                    
+                    const totalPay = dailyPay + monthlyPay;
+
+                    const slipHTML = `
+                    <div class="payslip-paper">
+                        <h2>PAYSLIP</h2>
+                        <div style="text-align:center; margin-bottom:15px; font-weight:bold;">SKY LEND CORPORATION</div>
+                        <div class="pay-row"><span>Employee:</span> <strong>${emp.name}</strong></div>
+                        <div class="pay-row"><span>Area:</span> <span>${emp.area}</span></div>
+                        <div class="pay-row"><span>Period:</span> <span>${start} to ${end}</span></div>
+                        <hr style="border:0; border-bottom:1px dashed #000; margin: 10px 0;">
+                        <div class="pay-row"><span>Days Present:</span> <span>${daysPresent}</span></div>
+                        <div class="pay-row"><span>Daily Rate:</span> <span>${this.formatMoney(emp.dailyRate || 0)}</span></div>
+                        <div class="pay-row"><span>Base Pay (Days):</span> <span>${this.formatMoney(dailyPay)}</span></div>
+                        <div class="pay-row"><span>Monthly Allowance:</span> <span>${this.formatMoney(monthlyPay)}</span></div>
+                        <div class="pay-row" style="color:#666; font-size:0.9em; margin-top:5px;"><span>Total Collection:</span> <span>${this.formatMoney(collection)}</span></div>
+                        <div class="pay-row bold"><span>NET PAY:</span> <span>${this.formatMoney(totalPay)}</span></div>
+                        <div style="margin-top:30px; border-top:1px solid #000; display:inline-block; width:40%;">Signature</div>
+                    </div>
+                    `;
+                    container.innerHTML += slipHTML;
+                });
+
+                container.classList.remove('hidden');
+                document.getElementById('btn-print-payslip').style.display = 'inline-flex';
+            }
+
+            // --- ACTIONS ---
+            calcLoanPreview() {
+                const p = parseFloat(document.getElementById('n-amt').value) || 0;
+                const term = parseInt(document.getElementById('n-term').value);
+                let rate = term === 40 ? 0.10 : (term === 30 ? 0.05 : 0.20);
+                const total = p + (p * rate);
+                // V10: Use Math.round for Daily to keep it an integer
+                const daily = Math.ceil(total / term);
+                
+                document.getElementById('prev-total').innerText = this.formatMoney(total);
+                document.getElementById('prev-daily').innerText = this.formatMoney(daily);
+            }
+
+            createLoan() {
+                const name = document.getElementById('n-name').value;
+                const area = document.getElementById('n-area').value;
+                const amt = parseFloat(document.getElementById('n-amt').value);
+                const term = parseInt(document.getElementById('n-term').value);
+                // NEW: Get Address and Cell Number
+                const address = document.getElementById('n-address').value;
+                const cellNumber = document.getElementById('n-cell').value;
+                
+                if (!name || !amt || !area) return alert('Missing fields');
+                let rate = term === 40 ? 0.10 : (term === 30 ? 0.05 : 0.20);
+                const total = amt + (amt * rate);
+                const daily = Math.ceil(total / term); // V10: Ensure daily is an integer
+                
+                this.db.loans.push({ 
+                    id: this.genId(), 
+                    name, 
+                    area, 
+                    principal: amt, 
+                    total, 
+                    balance: total, 
+                    daily: daily, 
+                    term, 
+                    date: this.getToday(), 
+                    status: 'Active',
+                    // NEW: Save Address and Cell Number
+                    address: address, 
+                    cellNumber: cellNumber 
+                });
+                this.addLedger('Disbursement', `Loan: ${name}`, -amt);
+                this.saveData(); alert('Loan Approved');
+                // Clear all fields
+                document.getElementById('n-name').value = ''; 
+                document.getElementById('n-amt').value = '';
+                document.getElementById('n-address').value = '';
+                document.getElementById('n-cell').value = '';
+            }
+
+            processPay(loanId) {
+                // Check if payment input is from the main collection table or the past due list
+                let amt;
+                const mainInput = document.getElementById(`pay-${loanId}`);
+                const odInput = document.getElementById(`pay-od-${loanId}`);
+
+                if (mainInput) {
+                    amt = parseFloat(mainInput.value);
+                } else if (odInput) {
+                    amt = parseFloat(odInput.value);
+                } else {
+                    return alert('Payment input not found.');
+                }
+
+                const dateFilter = document.getElementById('col-date-filter').value;
+                if(dateFilter !== this.getToday() && !confirm(`Recording payment for ${dateFilter}?`)) return;
+                if (!amt || amt <= 0) return alert('Invalid Amount');
+                const loan = this.db.loans.find(l => l.id === loanId);
+                
+                // Ensure payment doesn't overpay significantly
+                const paymentAmount = Math.min(amt, loan.balance + 0.5); 
+                
+                loan.balance -= paymentAmount;
+                this.db.ledger.unshift({ id: this.genId(), date: new Date().toLocaleString(), simpleDate: dateFilter, type: 'Collection', desc: `Payment: ${loan.name}`, amt: paymentAmount, user: this.currentUser.name });
+                if (loan.balance <= 0.5) { 
+                    loan.status = 'Paid'; 
+                    loan.balance = 0; 
+                    alert("Loan Fully Paid!"); 
+                }
+                this.saveData();
+            }
+
+            addExpense() {
+                const desc = document.getElementById('exp-desc').value;
+                const amt = parseFloat(document.getElementById('exp-amount').value);
+                if(desc && amt) { this.addLedger('Expense', desc, -amt); document.getElementById('exp-desc').value=''; document.getElementById('exp-amount').value=''; this.saveData(); alert('Expense Recorded'); }
+            }
+
+            injectCapital() {
+                const amt = parseFloat(document.getElementById('cap-amount').value);
+                if(amt) { this.addLedger('Capital', 'Owner Injection', amt); document.getElementById('cap-amount').value=''; this.saveData(); alert('Funds Added'); }
+            }
+
+            updateHREmployees() {
+                const sel = document.getElementById('hr-att-emp');
+                sel.innerHTML = '';
+                this.db.collectors.filter(c => c.name !== 'Admin').forEach(c => {
+                    sel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
+
+            markAttendance() {
+                const date = document.getElementById('hr-att-date').value;
+                const empId = document.getElementById('hr-att-emp').value;
+                const status = document.getElementById('hr-att-status').value;
+                if(!this.db.attendance) this.db.attendance = [];
+                this.db.attendance = this.db.attendance.filter(a => !(a.date === date && a.empId == empId));
+                this.db.attendance.push({ date, empId, status });
+                this.saveData(); alert(`Marked ${status} for ${this.db.collectors.find(c => c.id == empId)?.name || 'Employee'}`);
+            }
+
+            saveCollector() {
+                const name = document.getElementById('col-name').value;
+                const area = document.getElementById('col-area').value;
+                const pass = document.getElementById('col-pass').value;
+                const startDate = document.getElementById('col-start').value;
+                const dailyRate = parseFloat(document.getElementById('col-daily-rate').value) || 0;
+                const monthlyRate = parseFloat(document.getElementById('col-monthly-rate').value) || 0;
+
+                if(!name || !area || !pass) return alert("Fill Name, Area and Password");
+                const collectorData = { name, area, pass, startDate, dailyRate, monthlyRate };
+
+                if (this.editId) {
+                    const index = this.db.collectors.findIndex(c => c.id === this.editId);
+                    if (index !== -1) this.db.collectors[index] = { ...this.db.collectors[index], ...collectorData };
+                } else {
+                    this.db.collectors.push({ id: Date.now(), ...collectorData });
+                }
+                this.saveData(); this.cancelEdit(); this.updateAreaDropdown(); this.updateHREmployees();
+            }
+
+            editCollector(id) {
+                const col = this.db.collectors.find(c => c.id === id);
+                if (!col) return;
+                document.getElementById('col-name').value = col.name;
+                document.getElementById('col-area').value = col.area;
+                document.getElementById('col-pass').value = col.pass;
+                document.getElementById('col-start').value = col.startDate || '';
+                document.getElementById('col-daily-rate').value = col.dailyRate || '';
+                document.getElementById('col-monthly-rate').value = col.monthlyRate || '';
+                this.editId = id;
+                document.getElementById('btn-save-col').innerText = "💾 Update";
+                document.getElementById('btn-cancel-col').classList.remove('hidden');
+            }
+
+            cancelEdit() {
+                this.editId = null;
+                document.getElementById('col-name').value = ''; document.getElementById('col-area').value = ''; document.getElementById('col-pass').value = '';
+                document.getElementById('col-start').value = ''; document.getElementById('col-daily-rate').value = ''; document.getElementById('col-monthly-rate').value = '';
+                document.getElementById('btn-save-col').innerText = "➕ Add/Update";
+                document.getElementById('btn-cancel-col').classList.add('hidden');
+            }
+
+            delCollector(id) {
+                if(id == 1) return alert('Cannot delete Admin');
+                if(confirm("Delete collector?")) { 
+                    this.db.collectors = this.db.collectors.filter(c => c.id !== id); 
+                    // V10: Reassign affected loans if collector is deleted
+                    this.db.loans.forEach(l => {
+                        const deletedCol = this.db.collectors.find(c => c.id === id);
+                        if(deletedCol && l.area === deletedCol.area) {
+                            l.area = 'Unassigned'; // Simple reassignment placeholder
+                        }
+                    });
+                    this.saveData(); 
+                    this.updateAreaDropdown(); 
+                }
+            }
+            deleteLoan(id) { 
+                if(confirm("Delete Loan?")) { 
+                    this.db.loans = this.db.loans.filter(l => l.id !== id); 
+                    this.saveData(); 
+                } 
+            }
+            
+            updateAreaDropdown() {
+                const loanSel = document.getElementById('n-area'); loanSel.innerHTML = '';
+                [...new Set(this.db.collectors.map(c => c.area))].forEach(a => { if(a && a !== 'HQ') { let opt = document.createElement('option'); opt.value = a; opt.textContent = a; loanSel.appendChild(opt); } });
+            }
+
+            hardReset() {
+                if(confirm("FACTORY RESET? All Data Lost!")) {
+                    localStorage.removeItem(this.STORAGE_KEY);
+                    if(typeof google !== 'undefined') google.script.run.saveDataToDrive(JSON.stringify({ collectors: [{id: 1, name: 'Admin', area: 'HQ', pass: 'admin123'}], loans: [], ledger: [], attendance: [] }));
+                    location.reload();
+                }
+            }
+
+            // --- NEW EXPORT FUNCTIONS ---
+            exportTableToCSV(data, filename, headers) {
+                let csv = headers.join(',') + '\n';
+                data.forEach(row => {
+                    csv += row.map(d => `"${String(d).replace(/"/g, '""')}"`).join(',') + '\n';
+                });
+                const hiddenElement = document.createElement('a');
+                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+                hiddenElement.target = '_blank'; hiddenElement.download = filename; hiddenElement.click();
+            }
+
+            exportPastDue() {
+                let loans = this.db.loans.filter(l => l.status === 'Active' && this.isOverdue(l));
+                if(this.adminPastDueFilter !== 'All') loans = loans.filter(l => l.area === this.adminPastDueFilter);
+
+                const data = loans.map(l => [
+                    l.name, 
+                    l.area, 
+                    l.cellNumber || '', // Include new field
+                    l.address || '',     // Include new field
+                    this.formatMoney(l.balance), 
+                    this.getOverdueDays(l) + ' Days Late'
+                ]);
+                const headers = ['Client', 'Area', 'Cell Number', 'Address', 'Balance', 'Status'];
+                this.exportTableToCSV(data, `past_due_${this.adminPastDueFilter}.csv`, headers);
+            }
+
+            exportActiveLoans() {
+                let loans = this.db.loans.filter(l => l.status === 'Active');
+                if(this.adminLoanFilter !== 'All') loans = loans.filter(l => l.area === this.adminLoanFilter);
+                
+                const data = loans.map(l => [
+                    l.name, 
+                    l.area, 
+                    l.cellNumber || '', // Include new field
+                    l.address || '',     // Include new field
+                    this.formatMoney(l.principal),
+                    this.formatMoney(l.total),
+                    this.formatMoney(l.daily),
+                    this.formatMoney(l.balance),
+                    l.term + ' Days'
+                ]);
+                const headers = ['Client', 'Area', 'Cell Number', 'Address', 'Principal', 'Total Loan', 'Daily Pay', 'Remaining Balance', 'Term'];
+                this.exportTableToCSV(data, `active_loans_${this.adminLoanFilter}.csv`, headers);
+            }
+            // --- END NEW EXPORT FUNCTIONS ---
+
+            exportCSV() {
+                let csv = 'Date,Type,Description,Amount,User\n';
+                this.db.ledger.forEach(row => { csv += `${row.simpleDate},${row.type},"${row.desc}",${row.amt},${row.user}\n`; });
+                const hiddenElement = document.createElement('a');
+                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+                hiddenElement.target = '_blank'; hiddenElement.download = 'skylend_ledger.csv'; hiddenElement.click();
+            }
+        }
+
+        const app = new SkyLendCloud();
+    </script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+      console.log('ServiceWorker registration successful with scope: ', reg.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.createElement('button');
+  btn.textContent = 'Install App';
+  btn.style.position="fixed";
+  btn.style.bottom="12px";
+  btn.style.right="12px";
+  btn.style.zIndex = 100000;
+  btn.onclick = () => {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      deferredPrompt = null;
+      btn.remove();
+    });
+  };
+  document.body.appendChild(btn);
+});
+</script>
+
+</body>
+</html>
